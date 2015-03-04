@@ -322,4 +322,4 @@ ggplot(meta, aes(x = Treatment, y = value)) +
   theme(axis.title = element_text(size = rel(1.5))) + 
   theme(axis.text = element_text(size = rel(1.0))) + #mudei o tamanho das escalas e legendas
   facet_grid(response ~ clarity, scales = "free_y")
-## testando o github
+### vendo como fica 
