@@ -10,8 +10,9 @@ library(fitdistrplus)
 
 # load data ---------------------------------------------------------------
 
-metabolism<-read.csv("C://Users//Farjala//Documents//Manuscritos//Frontiers Microbiology//MetaData.csv", header=TRUE, stringsAsFactors = FALSE)
-str(metabolism)
+wilson<-read.table("C:/Users/Farjala/Documents/Manuscritos/FrontiersMicrobiology/Wilson.txt",
+                   header=TRUE, stringsAsFactors = FALSE)
+str(wilson)
 
 
 
@@ -45,7 +46,7 @@ abline(0,1)
 
 # data reorganization -----------------------------------------------------
 
-meta <- metabolism %>%
+meta <- wilson %>%
   select(Lake:BGE) %>%
   gather(key = "response", value = "value", Respiration, Production, BGE) %>%
   mutate(N = ifelse(Treatment %in% c("N","NP"), yes = "N", no = "Control"),
@@ -67,27 +68,68 @@ PB <- filter (meta, response %in% c("Production"))
 lmeProduction<-lme(value ~ (N*P)*Temperature, random = ~1|Lake/Block, data=PB)
 summary(lmeProduction)
 
+# opção de figura com regressões
+PB <- filter (meta, response %in% c("Production"))
+head(PB)
+coef(lm(value ~ Temperature, data = PB))
+ggplot(PB, aes(x=Temperature, y = value, colour=Lake)) +
+  geom_point(position = position_jitter(w = 0.5), size=2.5) +
+  stat_summary(fun.y = median, geom="line")+
+  geom_abline(intercept = 0.1275176256, slope = -0.0008845793, size = 1.0)+
+  scale_color_manual(values = c("Cab"="chartreuse3","Carap"="blue", "Comp"="orange", "Aboi"="red", "Atol"="grey30"))+
+  scale_y_continuous(limits = c(0.01, 0.26))+
+  xlab("Temperature") + ylab("Bacterial Production") +
+  theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), panel.grid.major.x = element_blank()) +
+  theme(axis.title = element_text(size = rel(1.7))) + theme(axis.text = element_text(size = rel(1.5))) #mudei o tamanho das escalas e legendas
 
+
+# opção de figura com boxplots
 p1 <- ggplot(PB, aes(x = factor(Temperature), y = value)) + geom_boxplot(aes(fill = Treatment)) + scale_y_continuous(limits = c(0, 0.30)) #retirei os outliers da figura e mudei a escala para otimizar o espa?o 
 p2 <- p1 + xlab("Temperature") + ylab("Production") # alterei as legendas (n?o foi especialmente necass?rio aqui)
 p3 <- p2 + theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), panel.grid.major.x = element_blank()) # retirei as linhas de grade e peinel de fundo cinza
-p4 <- p3 + theme(axis.title = element_text(size = rel(1.5))) + theme(axis.text = element_text(size = rel(1.0))) #mudei o tamanho das escalas e legendas
+p4 <- p3 + theme(axis.title = element_text(size = rel(1.7))) + theme(axis.text = element_text(size = rel(1.5))) #mudei o tamanho das escalas e legendas
 p4
 
 RB <- filter (meta, response %in% c("Respiration"))
 lmeRespiration<-lme(value~(N*P)*Temperature, random=~1|Lake/Block, data=RB)
 summary(lmeRespiration)
 
+RB <- filter (meta, response %in% c("Respiration"))
+head(RB)
+coef(lm(value ~ Temperature, data = RB))
+ggplot(RB, aes(x=Temperature, y = value, colour=Lake))+
+  geom_point(position = position_jitter(w = 0.5), size=2.5) +
+  geom_abline(intercept = -0.05480916, slope = 0.01438665, size = 1.0)+
+  stat_summary(fun.y = median, geom="line")+
+  scale_color_manual(values = c("Cab"="chartreuse3","Carap"="blue", "Comp"="orange", "Aboi"="red", "Atol"="grey30"))+
+  scale_y_continuous(limits = c(0.01, 0.85))+
+  xlab("Temperature") + ylab("Bacterial Respiration") +
+  theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), panel.grid.major.x = element_blank()) +
+  theme(axis.title = element_text(size = rel(1.7))) + theme(axis.text = element_text(size = rel(1.5))) #mudei o tamanho das escalas e legendas
+
 p1 <- ggplot(RB, aes(x = factor(Temperature), y = value)) + geom_boxplot(aes(fill = Treatment)) + scale_y_continuous(limits = c(0, 0.60)) #retirei os outliers da figura e mudei a escala para otimizar o espa?o 
 p2 <- p1 + xlab("Temperature") + ylab("Respiration") # alterei as legendas (n?o foi especialmente necass?rio aqui)
 p3 <- p2 + theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), panel.grid.major.x = element_blank()) # retirei as linhas de grade e peinel de fundo cinza
-p4 <- p3 + theme(axis.title = element_text(size = rel(1.5))) + theme(axis.text = element_text(size = rel(1.0))) #mudei o tamanho das escalas e legendas
+p4 <- p3 + theme(axis.title = element_text(size = rel(1.7))) + theme(axis.text = element_text(size = rel(1.5))) #mudei o tamanho das escalas e legendas
 p4
 
 
 BGE <- filter (meta, response %in% c("BGE"))
 lmeBGE<-lme(value~(N*P)*Temperature, random=~1|Lake/Block, data=BGE)
 summary(lmeBGE)
+
+BGE <- filter (meta, response %in% c("BGE"))
+head(BGE)
+coef(lm(value ~ Temperature, data = BGE))
+ggplot(BGE, aes(x=Temperature, y = value, colour=Lake))+
+  geom_point(position = position_jitter(w = 0.5), size=2.5) +
+  geom_abline(intercept = 0.488336043, slope = -0.01156826, size = 1.0)+
+  stat_summary(fun.y = median, geom="line")+
+  scale_color_manual(values = c("Cab"="chartreuse3","Carap"="blue", "Comp"="orange", "Aboi"="red", "Atol"="grey30"))+
+  scale_y_continuous(limits = c(0, 0.60))+
+  xlab("Temperature") + ylab("BGE") +
+  theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), panel.grid.major.x = element_blank()) +
+  theme(axis.title = element_text(size = rel(1.7))) + theme(axis.text = element_text(size = rel(1.5))) #mudei o tamanho das escalas e legendas
 
 p1 <- ggplot(BGE, aes(x = factor(Temperature), y = value)) + geom_boxplot(aes(fill = Treatment)) + scale_y_continuous(limits = c(0, 0.60)) #retirei os outliers da figura e mudei a escala para otimizar o espa?o 
 p2 <- p1 + xlab("Temperature") + ylab("BGE") # alterei as legendas (n?o foi especialmente necass?rio aqui)
